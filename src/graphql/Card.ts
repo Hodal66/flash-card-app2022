@@ -6,6 +6,14 @@ export const Card = objectType({
         t.nonNull.int("id"); 
         t.nonNull.string("question"); 
         t.nonNull.string("answer"); 
+        t.field("postedBy", {   // 1
+            type: "User",
+            resolve(parent, args, context) {  // 2
+                return context.prisma.card
+                    .findUnique({ where: { id: parent.id } })
+                    .postedBy();
+            },
+        });
     },
 });
 
@@ -33,13 +41,22 @@ export const CardMutation = extendType({  // 1
             },
             
             resolve(parent, args, context) {    
-                const newLink = context.prisma.card.create({   // 2
+                const { question, answer } = args;
+                const { userId } = context;
+
+                if (!userId) {  // 1
+                    throw new Error("Cannot post without logging in.");
+                }
+
+                const newCard = context.prisma.card.create({
                     data: {
-                        question: args.question,
-                        answer: args.answer,
+                        question,
+                        answer,
+                        postedBy: { connect: { id: userId } },  // 2
                     },
                 });
-                return newLink;
+
+                return newCard;
             },
         });
     },
