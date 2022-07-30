@@ -4,7 +4,7 @@
  */
 
 
-
+import type { Context } from "./src/context"
 
 
 
@@ -35,6 +35,11 @@ export interface NexusGenObjects {
   }
   Mutation: {};
   Query: {};
+  User: { // root type
+    email: string; // String!
+    id: number; // Int!
+    name: string; // String!
+  }
 }
 
 export interface NexusGenInterfaces {
@@ -59,6 +64,12 @@ export interface NexusGenFieldTypes {
   Query: { // field return type
     feed: NexusGenRootTypes['Card'][]; // [Card!]!
   }
+  User: { // field return type
+    cards: NexusGenRootTypes['Card'][]; // [Card!]!
+    email: string; // String!
+    id: number; // Int!
+    name: string; // String!
+  }
 }
 
 export interface NexusGenFieldTypeNames {
@@ -72,6 +83,12 @@ export interface NexusGenFieldTypeNames {
   }
   Query: { // field return type name
     feed: 'Card'
+  }
+  User: { // field return type name
+    cards: 'Card'
+    email: 'String'
+    id: 'Int'
+    name: 'String'
   }
 }
 
@@ -115,7 +132,7 @@ export type NexusGenFeaturesConfig = {
 }
 
 export interface NexusGenTypes {
-  context: any;
+  context: Context;
   inputTypes: NexusGenInputs;
   rootTypes: NexusGenRootTypes;
   inputTypeShapes: NexusGenInputs & NexusGenEnums & NexusGenScalars;
