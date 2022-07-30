@@ -2,16 +2,31 @@
 ### Do not make changes to this file directly
 
 
+type AuthPayload {
+  token: String!
+  user: User!
+}
+
 type Card {
   answer: String!
   id: Int!
+  postedBy: User
   question: String!
 }
 
 type Mutation {
+  login(email: String!, password: String!): AuthPayload!
   post(answer: String!, question: String!): Card!
+  signup(email: String!, name: String!, password: String!): AuthPayload!
 }
 
 type Query {
   feed: [Card!]!
+}
+
+type User {
+  cards: [Card!]!
+  email: String!
+  id: Int!
+  name: String!
 }

@@ -6,20 +6,17 @@ export const Card = objectType({
         t.nonNull.int("id"); 
         t.nonNull.string("question"); 
         t.nonNull.string("answer"); 
+        t.field("postedBy", {   // 1
+            type: "User",
+            resolve(parent, args, context) {  // 2
+                return context.prisma.card
+                    .findUnique({ where: { id: parent.id } })
+                    .postedBy();
+            },
+        });
     },
 });
-let Cards: NexusGenObjects["Card"][]= [   // 1
-    {
-        id: 1,
-        question: "what is answer  30 + 60",
-        answer: "now 90",
-    },
-    {
-        id: 2,
-        question: "give example of camera",
-        answer: "cctv",
-    },
-];
+
 
 export const CardQuery = extendType({  
     type: "Query",
@@ -27,7 +24,7 @@ export const CardQuery = extendType({
         t.nonNull.list.nonNull.field("feed", {  
             type: "Card",
             resolve(parent, args, context, info) {  
-                return Cards;
+                return context.prisma.card.findMany();
             },
         });
     },
@@ -44,16 +41,22 @@ export const CardMutation = extendType({  // 1
             },
             
             resolve(parent, args, context) {    
-                const { question, answer } = args;  // 4
-                
-                let idCount = Cards.length + 1;  // 5
-                const Card = {
-                    id: idCount,
-                    question: question,
-                    answer: answer,
-                };
-                Cards.push(Card);
-                return Card;
+                const { question, answer } = args;
+                const { userId } = context;
+
+                if (!userId) {  // 1
+                    throw new Error("Cannot post without logging in.");
+                }
+
+                const newCard = context.prisma.card.create({
+                    data: {
+                        question,
+                        answer,
+                        postedBy: { connect: { id: userId } },  // 2
+                    },
+                });
+
+                return newCard;
             },
         });
     },
