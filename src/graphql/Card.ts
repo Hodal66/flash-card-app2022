@@ -1,4 +1,4 @@
-import { extendType, nonNull, objectType, stringArg } from "nexus";   
+import { extendType, intArg, nonNull, nullable, objectType, stringArg } from "nexus";   
 import { NexusGenObjects } from "../../nexus-typegen"; 
 export const Card = objectType({
     name: "Card",
@@ -40,7 +40,7 @@ export const CardMutation = extendType({  // 1
                 answer: nonNull(stringArg()),
             },
             
-            resolve(parent, args, context) {    
+           async resolve(parent, args, context) {    
                 const { question, answer } = args;
                 const { userId } = context;
 
@@ -48,7 +48,7 @@ export const CardMutation = extendType({  // 1
                     throw new Error("Cannot post without logging in.");
                 }
 
-                const newCard = context.prisma.card.create({
+                const newCard =await context.prisma.card.create({
                     data: {
                         question,
                         answer,
@@ -61,3 +61,65 @@ export const CardMutation = extendType({  // 1
         });
     },
 });
+export const deleteCardMutation = extendType({
+type:"Mutation",
+definition(t) {
+    t.nonNull.field("deleteCard",{
+        type:"Card",
+        args:{
+            id: nonNull(intArg())
+        },
+        //@ts-ignore
+        async resolve(parent, args,context, info) {
+            const {id}=args
+            if(!id )throw new Error("Axess Denied")
+            const cardToBeDeleted = await context.prisma.card.findUnique({
+                where:{
+                    id:args.id,
+                }
+            })
+            if(!cardToBeDeleted) throw new Error("Card not found");
+            //if(cardToBeDeleted.postedById != id) throw new Error("You have no access to this card")
+           const cardDeleted= await context.prisma.card.delete({
+                where:{
+                    id:args.id
+                }
+            })
+            if(cardDeleted)
+            return "Card have been deleted successfully!!!"       
+        }
+    }
+    )
+    t.field("updateCard",{
+        type:"Card",
+        args:{
+            id: nonNull(intArg()),
+            answer: nullable(stringArg()),
+            question: nullable(stringArg())
+        },
+        //@ts-ignore
+        // async resolve(parent, args, context){
+        //     const {id}=args
+        //     if(!id) throw new Error("Aceess Denied !!!")
+        //     const cardTobeUpdated = await context.prisma.card.findUnique({
+        //         where:{
+        //             id:args.id
+        //         }
+        //     })
+        //     if(!cardTobeUpdated) throw new Error("OOPs Card not found!!!");
+        //     if(cardTobeUpdated.postedById!=id) throw new Error("you have no access to this card");
+        //     const updatedCard = await context.prisma.card.update({
+        //         where: {
+        //           id: args.id,
+        //         },
+        //         data: {
+        //           question: args.question,
+        //           answer: args.answer
+        //         }
+        //       })
+        //       return updatedCard
+
+        // }
+    })
+},
+})
