@@ -8,6 +8,10 @@ type Card {
   question: String!
 }
 
+type Mutation {
+  post(answer: String!, question: String!): Card!
+}
+
 type Query {
   feed: [Card!]!
 }

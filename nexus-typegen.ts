@@ -33,6 +33,7 @@ export interface NexusGenObjects {
     id: number; // Int!
     question: string; // String!
   }
+  Mutation: {};
   Query: {};
 }
 
@@ -52,6 +53,9 @@ export interface NexusGenFieldTypes {
     id: number; // Int!
     question: string; // String!
   }
+  Mutation: { // field return type
+    post: NexusGenRootTypes['Card']; // Card!
+  }
   Query: { // field return type
     feed: NexusGenRootTypes['Card'][]; // [Card!]!
   }
@@ -63,12 +67,21 @@ export interface NexusGenFieldTypeNames {
     id: 'Int'
     question: 'String'
   }
+  Mutation: { // field return type name
+    post: 'Card'
+  }
   Query: { // field return type name
     feed: 'Card'
   }
 }
 
 export interface NexusGenArgTypes {
+  Mutation: {
+    post: { // args
+      answer: string; // String!
+      question: string; // String!
+    }
+  }
 }
 
 export interface NexusGenAbstractTypeMembers {
