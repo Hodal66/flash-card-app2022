@@ -68,14 +68,15 @@ export interface NexusGenFieldTypes {
     question: string; // String!
   }
   Mutation: { // field return type
-    deleteCard: NexusGenRootTypes['Card']; // Card!
+    deleteCard: string; // String!
     login: NexusGenRootTypes['AuthPayload']; // AuthPayload!
     post: NexusGenRootTypes['Card']; // Card!
     signup: NexusGenRootTypes['AuthPayload']; // AuthPayload!
-    updateCard: NexusGenRootTypes['Card'] | null; // Card
+    updateCard: NexusGenRootTypes['Card']; // Card!
   }
   Query: { // field return type
     feed: NexusGenRootTypes['Card'][]; // [Card!]!
+    fetchOneCard: NexusGenRootTypes['Card']; // Card!
   }
   User: { // field return type
     cards: NexusGenRootTypes['Card'][]; // [Card!]!
@@ -97,7 +98,7 @@ export interface NexusGenFieldTypeNames {
     question: 'String'
   }
   Mutation: { // field return type name
-    deleteCard: 'Card'
+    deleteCard: 'String'
     login: 'AuthPayload'
     post: 'Card'
     signup: 'AuthPayload'
@@ -105,6 +106,7 @@ export interface NexusGenFieldTypeNames {
   }
   Query: { // field return type name
     feed: 'Card'
+    fetchOneCard: 'Card'
   }
   User: { // field return type name
     cards: 'Card'
@@ -133,9 +135,14 @@ export interface NexusGenArgTypes {
       password: string; // String!
     }
     updateCard: { // args
-      answer?: string | null; // String
+      answer: string; // String!
       id: number; // Int!
-      question?: string | null; // String
+      question: string; // String!
+    }
+  }
+  Query: {
+    fetchOneCard: { // args
+      id: number; // Int!
     }
   }
 }

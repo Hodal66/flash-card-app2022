@@ -29,6 +29,36 @@ export const CardQuery = extendType({
         });
     },
 });
+export const fetchOneCardQuery=extendType({
+    type:"Query",
+    definition(t){
+        t.nonNull.field("fetchOneCard",{
+            type:"Card",
+            args:{
+                id:nonNull(intArg())
+            },
+            //@ts-ignore
+            async resolve(parent:any, args:any, context:any){
+                const {id}=args
+
+                if(!id){
+                    throw new Error("Provide id of a card");
+                }
+
+                const findOneCard = await context.prisma.card.findUnique({
+                    where:{
+                        id:args.id
+                    }
+                })
+               
+                
+                return findOneCard
+            }
+           
+
+        })
+    }
+ })
 
 export const CardMutation = extendType({  // 1
     type: "Mutation",    
@@ -65,14 +95,14 @@ export const deleteCardMutation = extendType({
 type:"Mutation",
 definition(t) {
     t.nonNull.field("deleteCard",{
-        type:"Card",
+        type:"String",
         args:{
             id: nonNull(intArg())
         },
         //@ts-ignore
         async resolve(parent, args,context, info) {
             const {id}=args
-            if(!id )throw new Error("Axess Denied")
+            if(!id )throw new Error("No Id provided")
             const cardToBeDeleted = await context.prisma.card.findUnique({
                 where:{
                     id:args.id,
@@ -90,36 +120,62 @@ definition(t) {
         }
     }
     )
-    t.field("updateCard",{
-        type:"Card",
-        args:{
-            id: nonNull(intArg()),
-            answer: nullable(stringArg()),
-            question: nullable(stringArg())
-        },
-        //@ts-ignore
-        // async resolve(parent, args, context){
-        //     const {id}=args
-        //     if(!id) throw new Error("Aceess Denied !!!")
-        //     const cardTobeUpdated = await context.prisma.card.findUnique({
-        //         where:{
-        //             id:args.id
-        //         }
-        //     })
-        //     if(!cardTobeUpdated) throw new Error("OOPs Card not found!!!");
-        //     if(cardTobeUpdated.postedById!=id) throw new Error("you have no access to this card");
-        //     const updatedCard = await context.prisma.card.update({
-        //         where: {
-        //           id: args.id,
-        //         },
-        //         data: {
-        //           question: args.question,
-        //           answer: args.answer
-        //         }
-        //       })
-        //       return updatedCard
 
-        // }
-    })
 },
 })
+
+export const updateCardMutation = extendType({
+    type:"Mutation",
+
+    definition(t){
+        t.nonNull.field("updateCard",{
+            type:"Card",
+            args:{
+                id:nonNull(intArg()),
+                answer:nonNull(stringArg()),
+                question:nonNull(stringArg())
+            },
+               //@ts-ignore
+            async resolve(parent:any,args:any, context:any){
+                const {id,answer,question}=args
+
+                const { userId } = context;
+
+                if (!userId) {  // 1
+                    throw new Error("Cannot post without logging in.");
+                }
+
+            if(!id) throw new Error("please provide Id card");
+
+            const cardToBeUpdated = await context.prisma.card.findUnique({
+                where:{
+                    id:args.id
+                }
+                
+            })
+            if(!cardToBeUpdated) throw new Error("No Card Found!!!");
+
+        const updateCard=context.prisma.card.update(
+            {
+               where: {
+                id:args.id
+               },
+               data:{
+                question,
+                answer
+               }
+            }
+        )
+        return updateCard
+        }
+        })
+       
+    }
+})
+
+
+
+
+
+
+ 
