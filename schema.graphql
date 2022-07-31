@@ -15,13 +15,16 @@ type Card {
 }
 
 type Mutation {
+  deleteCard(id: Int!): String!
   login(email: String!, password: String!): AuthPayload!
   post(answer: String!, question: String!): Card!
   signup(email: String!, name: String!, password: String!): AuthPayload!
+  updateCard(answer: String!, id: Int!, question: String!): Card!
 }
 
 type Query {
   feed: [Card!]!
+  fetchOneCard(id: Int!): Card!
 }
 
 type User {

@@ -1,4 +1,4 @@
-import { extendType, nonNull, objectType, stringArg } from "nexus";   
+import { extendType, intArg, nonNull, nullable, objectType, stringArg } from "nexus";   
 import { NexusGenObjects } from "../../nexus-typegen"; 
 export const Card = objectType({
     name: "Card",
@@ -29,6 +29,36 @@ export const CardQuery = extendType({
         });
     },
 });
+export const fetchOneCardQuery=extendType({
+    type:"Query",
+    definition(t){
+        t.nonNull.field("fetchOneCard",{
+            type:"Card",
+            args:{
+                id:nonNull(intArg())
+            },
+            //@ts-ignore
+            async resolve(parent:any, args:any, context:any){
+                const {id}=args
+
+                if(!id){
+                    throw new Error("Provide id of a card");
+                }
+
+                const findOneCard = await context.prisma.card.findUnique({
+                    where:{
+                        id:args.id
+                    }
+                })
+               
+                
+                return findOneCard
+            }
+           
+
+        })
+    }
+ })
 
 export const CardMutation = extendType({  // 1
     type: "Mutation",    
@@ -40,7 +70,7 @@ export const CardMutation = extendType({  // 1
                 answer: nonNull(stringArg()),
             },
             
-            resolve(parent, args, context) {    
+           async resolve(parent, args, context) {    
                 const { question, answer } = args;
                 const { userId } = context;
 
@@ -48,7 +78,7 @@ export const CardMutation = extendType({  // 1
                     throw new Error("Cannot post without logging in.");
                 }
 
-                const newCard = context.prisma.card.create({
+                const newCard =await context.prisma.card.create({
                     data: {
                         question,
                         answer,
@@ -61,3 +91,91 @@ export const CardMutation = extendType({  // 1
         });
     },
 });
+export const deleteCardMutation = extendType({
+type:"Mutation",
+definition(t) {
+    t.nonNull.field("deleteCard",{
+        type:"String",
+        args:{
+            id: nonNull(intArg())
+        },
+        //@ts-ignore
+        async resolve(parent, args,context, info) {
+            const {id}=args
+            if(!id )throw new Error("No Id provided")
+            const cardToBeDeleted = await context.prisma.card.findUnique({
+                where:{
+                    id:args.id,
+                }
+            })
+            if(!cardToBeDeleted) throw new Error("Card not found");
+            //if(cardToBeDeleted.postedById != id) throw new Error("You have no access to this card")
+           const cardDeleted= await context.prisma.card.delete({
+                where:{
+                    id:args.id
+                }
+            })
+            if(cardDeleted)
+            return "Card have been deleted successfully!!!"       
+        }
+    }
+    )
+
+},
+})
+
+export const updateCardMutation = extendType({
+    type:"Mutation",
+
+    definition(t){
+        t.nonNull.field("updateCard",{
+            type:"Card",
+            args:{
+                id:nonNull(intArg()),
+                answer:nonNull(stringArg()),
+                question:nonNull(stringArg())
+            },
+               //@ts-ignore
+            async resolve(parent:any,args:any, context:any){
+                const {id,answer,question}=args
+
+                const { userId } = context;
+
+                if (!userId) {  // 1
+                    throw new Error("Cannot post without logging in.");
+                }
+
+            if(!id) throw new Error("please provide Id card");
+
+            const cardToBeUpdated = await context.prisma.card.findUnique({
+                where:{
+                    id:args.id
+                }
+                
+            })
+            if(!cardToBeUpdated) throw new Error("No Card Found!!!");
+
+        const updateCard=context.prisma.card.update(
+            {
+               where: {
+                id:args.id
+               },
+               data:{
+                question,
+                answer
+               }
+            }
+        )
+        return updateCard
+        }
+        })
+       
+    }
+})
+
+
+
+
+
+
+ 
