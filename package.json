@@ -6,6 +6,8 @@
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
     "dev": "ts-node-dev --transpile-only --no-notify --exit-child src/index.ts",
+    "build": "prisma generate && npm run generate && tsc",
+    "start": "node dist/src/index.js",
     "generate": "ts-node --transpile-only src/schema.ts"
   },
   "keywords": [],
