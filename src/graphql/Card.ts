@@ -23,7 +23,7 @@ export const CardQuery = extendType({
     definition(t) {
         t.nonNull.list.nonNull.field("feed", {  
             type: "Card",
-            resolve(parent, args, context, info) {  
+            resolve(parent, args, context) {  
                 return context.prisma.card.findMany();
             },
         });
@@ -100,7 +100,7 @@ definition(t) {
             id: nonNull(intArg())
         },
         //@ts-ignore
-        async resolve(parent, args,context, info) {
+        async resolve(parent, args,context) {
             const {id}=args
             if(!id )throw new Error("No Id provided")
             const cardToBeDeleted = await context.prisma.card.findUnique({
